@@ -1,0 +1,3 @@
+C:/Users/Owner/source/repos/project2/src/build/CMakeFiles/imgSearch.dir
+C:/Users/Owner/source/repos/project2/src/build/CMakeFiles/ALL_BUILD.dir
+C:/Users/Owner/source/repos/project2/src/build/CMakeFiles/ZERO_CHECK.dir

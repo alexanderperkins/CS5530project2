@@ -1,0 +1,10 @@
+^C:\USERS\OWNER\SOURCE\REPOS\PROJECT2\SRC\BUILD\CMAKEFILES\7C8AD90A4EE36CC3695926582248B355\GENERATE.STAMP.RULE
+setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -SC:/Users/Owner/source/repos/project2/src -BC:/Users/Owner/source/repos/project2/src/build --check-stamp-list CMakeFiles/generate.stamp.list --vs-solution-file C:/Users/Owner/source/repos/project2/src/build/Project2.sln
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
