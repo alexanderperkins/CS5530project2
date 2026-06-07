@@ -57,9 +57,13 @@ int main(int argc, char *argv[]) {
 
         // compute distances
         for(int i = 0; i < filenames.size(); i++) {
+            if(strstr(filenames[i], targetFile) != NULL ||
+               strstr(targetFile, filenames[i]) != NULL) {
+                continue;
+            }
             float dist = SSDDistance(targetFeatures, data[i]);
-            distances.push_back(std::make_pair(dist,
-                std::string(filenames[i])));
+            std::string fullPath = std::string(dbDir) + "/" + std::string(filenames[i]);
+            distances.push_back(std::make_pair(dist, fullPath));
         }
     }
     else {
@@ -104,6 +108,13 @@ int main(int argc, char *argv[]) {
 
         // loop through database
         for(int i = 0; i < imageFiles.size(); i++) {
+            std::string dbFile = std::string(imageFiles[i]);
+            std::string targetStr = std::string(targetFile);
+            std::string dbName = dbFile.substr(dbFile.find_last_of("/\\") + 1);
+            std::string targetName = targetStr.substr(targetStr.find_last_of("/\\") + 1);
+            if(dbName == targetName) {
+                continue;
+            }
             cv::Mat dbImage = cv::imread(imageFiles[i]);
             if(dbImage.empty()) {
                 continue;
@@ -168,7 +179,7 @@ int main(int argc, char *argv[]) {
                 dist = SSD(targetFeatures, dbFeatures);
             }
             distances.push_back(std::make_pair(dist,
-                std::string(imageFiles[i])));
+                std::string(imageFiles[i])));        
         }
     }
 
@@ -184,15 +195,38 @@ int main(int argc, char *argv[]) {
     }
 
     // extension - display matching images
-    cv::Mat target_display = cv::imread(targetFile);
-    cv::imshow("Target", target_display);
+    cv::Mat target_display;
+    if(strcmp(method, "dnn") == 0) {
+        std::string fullPath = std::string(dbDir) + "/" + std::string(targetFile);
+        target_display = cv::imread(fullPath);
+    }
+    else {
+        target_display = cv::imread(targetFile);
+    }
+    if(!target_display.empty()) {
+        cv::Mat resized;
+        cv::resize(target_display, resized, cv::Size(200, 200));
+        // window 1 - target image only
+        cv::imshow("Target Image", resized);
+    }
 
+    // window 2 - top matches only
+    cv::Mat matchDisplay;
     for(int i = 0; i < numMatches && i < distances.size(); i++) {
-        cv::Mat match = cv::imread(distances[i].second);
-        if(!match.empty()) {
-            std::string title = "Match " + std::to_string(i+1);
-            cv::imshow(title, match);
+        cv::Mat match = cv::imread(distances[i].second);            if(!match.empty()) {
+            cv::Mat resized;
+            cv::resize(match, resized, cv::Size(200, 200));
+            if(matchDisplay.empty()) {
+                matchDisplay = resized;
+            }
+            else {
+                cv::hconcat(matchDisplay, resized, matchDisplay);
+            }
         }
+    }
+
+    if(!matchDisplay.empty()) {
+        cv::imshow("Top Matches", matchDisplay);
     }
     cv::waitKey(0);
 
